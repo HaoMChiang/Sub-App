@@ -1,12 +1,15 @@
-import Cover from "./components/Cover";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
-    <div>
+    <BrowserRouter>
       <Navbar />
-      <Cover />
-    </div>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

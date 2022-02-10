@@ -1,9 +1,7 @@
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { findByLabelText } from "@testing-library/react";
 import ModalComponent from "./Modal";
 
 const InnerCard = () => {
@@ -19,8 +17,8 @@ const InnerCard = () => {
         </Typography>
       </CardContent>
       <CardActions>
-        <ModalComponent text="Signup" />
-        <ModalComponent text="Login" />
+        <ModalComponent text="Signup" isSignupFlow={true} />
+        <ModalComponent text="Login" isSignupFlow={false} />
       </CardActions>
     </Card>
   );

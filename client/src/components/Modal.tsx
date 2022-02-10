@@ -4,9 +4,12 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { TextField } from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface ModalProps {
   text: string;
+  isSignupFlow: boolean;
 }
 
 const style = {
@@ -21,10 +24,56 @@ const style = {
   p: 4,
 };
 
-const ModalComponent = ({ text }: ModalProps) => {
+const ModalComponent = ({ text, isSignupFlow }: ModalProps) => {
   const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
+
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setEmail("");
+    setPassword("");
+    setErrorMsg("");
+    setOpen(false);
+  };
+
+  const handleClick = async () => {
+    setIsLoading(true);
+    setErrorMsg("");
+    let data;
+    if (isSignupFlow) {
+      const { data: signupData } = await axios.post(
+        "http://localhost:8080/auth/signup",
+        {
+          email,
+          password,
+        }
+      );
+      data = signupData;
+    } else {
+      const { data: loginData } = await axios.post(
+        "http://localhost:8080/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+      data = loginData;
+    }
+
+    if (data.errors.length) {
+      setErrorMsg(data.errors[0].msg);
+    } else {
+      localStorage.setItem("token", data.data.token);
+      navigate("/articles");
+    }
+
+    setIsLoading(false);
+  };
 
   return (
     <div>
@@ -51,19 +100,35 @@ const ModalComponent = ({ text }: ModalProps) => {
             label="Email"
             variant="outlined"
             sx={{ m: 1 }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <TextField
             id="outlined-basic"
             label="Password"
             variant="outlined"
             sx={{ m: 1 }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <Box sx={{ mt: 4 }}>
-            <Button variant="contained" sx={{ mr: 2 }} onClick={handleClose}>
+            <Button
+              variant="contained"
+              sx={{ mr: 2 }}
+              onClick={handleClose}
+              disabled={isLoading}
+            >
               Close
             </Button>
-            <Button variant="contained">{text}</Button>
+            <Button
+              variant="contained"
+              onClick={handleClick}
+              disabled={isLoading}
+            >
+              {text}
+            </Button>
           </Box>
+          {errorMsg && <p>{errorMsg}</p>}
         </Box>
       </Modal>
     </div>
